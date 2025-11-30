@@ -86,6 +86,54 @@
             background: #ccc;
             cursor: not-allowed;
         }
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            background: #f0f0f0;
+            color: #666;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover {
+            background: #e0e0e0;
+        }
+        .tab-btn.active {
+            background: #0066FF;
+            color: white;
+        }
+        .aba-conteudo {
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .vaga-item, .grupo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .vaga-item:last-child, .grupo-item:last-child {
+            border-bottom: none;
+        }
+        .vaga-info, .grupo-info {
+            flex: 1;
+        }
+        .vaga-titulo, .grupo-nome {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: #000;
+        }
+        .vaga-detalhes, .grupo-detalhes {
+            color: #666;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -149,9 +197,113 @@
         </aside>
         <main class="main-content">
             <h1 class="page-title">Administração</h1>
-            <div class="card admin-card">
-                <div id="adminContent">
-                    <p style="text-align: center; padding: 40px; color: #666;">Carregando usuários...</p>
+            
+            <!-- Tabs -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="tab-btn active" onclick="mostrarAba('usuarios')">Usuários</button>
+                <button class="tab-btn" onclick="mostrarAba('vagas')">Vagas</button>
+                <button class="tab-btn" onclick="mostrarAba('grupos')">Grupos</button>
+            </div>
+            
+            <!-- Aba Usuários -->
+            <div id="abaUsuarios" class="aba-conteudo">
+                <div class="card admin-card">
+                    <div id="adminContent">
+                        <p style="text-align: center; padding: 40px; color: #666;">Carregando usuários...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Aba Vagas -->
+            <div id="abaVagas" class="aba-conteudo" style="display: none;">
+                <div class="card admin-card">
+                    <h2 style="margin-bottom: 20px; color: #000;">Gerenciar Vagas</h2>
+                    
+                    <!-- Formulário de criação -->
+                    <div style="margin-bottom: 30px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+                        <h3 style="margin-bottom: 15px; color: #000;">Criar Nova Vaga</h3>
+                        <form id="formCriarVaga" onsubmit="criarNovaVaga(event)">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Título *</label>
+                                    <input type="text" id="vagaTitulo" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Empresa *</label>
+                                    <input type="text" id="vagaEmpresa" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Localização</label>
+                                    <input type="text" id="vagaLocalizacao" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Tipo de Emprego</label>
+                                    <input type="text" id="vagaTipo" placeholder="Ex: CLT, PJ, Estágio" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Salário Mínimo (R$)</label>
+                                    <input type="number" id="vagaSalarioMin" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Salário Máximo (R$)</label>
+                                    <input type="number" id="vagaSalarioMax" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Descrição</label>
+                                <textarea id="vagaDescricao" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; resize: vertical;"></textarea>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Requisitos</label>
+                                <textarea id="vagaRequisitos" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; resize: vertical;"></textarea>
+                            </div>
+                            <button type="submit" class="btn-action btn-admin" style="width: 100%;">Criar Vaga</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Lista de vagas -->
+                    <div id="vagasList">
+                        <p style="text-align: center; padding: 40px; color: #666;">Carregando vagas...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Aba Grupos -->
+            <div id="abaGrupos" class="aba-conteudo" style="display: none;">
+                <div class="card admin-card">
+                    <h2 style="margin-bottom: 20px; color: #000;">Gerenciar Grupos</h2>
+                    
+                    <!-- Formulário de criação -->
+                    <div style="margin-bottom: 30px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+                        <h3 style="margin-bottom: 15px; color: #000;">Criar Novo Grupo</h3>
+                        <form id="formCriarGrupo" onsubmit="criarNovoGrupo(event)">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Nome do Grupo *</label>
+                                <input type="text" id="grupoNome" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Descrição</label>
+                                <textarea id="grupoDescricao" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; resize: vertical;"></textarea>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Tipo</label>
+                                <select id="grupoTipo" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                    <option value="publico">Público</option>
+                                    <option value="privado">Privado</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-action btn-admin" style="width: 100%;">Criar Grupo</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Lista de grupos -->
+                    <div id="gruposList">
+                        <p style="text-align: center; padding: 40px; color: #666;">Carregando grupos...</p>
+                    </div>
                 </div>
             </div>
         </main>

@@ -167,6 +167,16 @@ function dbUpdate(storeName, key, updates) {
     });
 }
 
+function dbDelete(storeName, key) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        const request = store.delete(key);
+        request.onsuccess = () => resolve({ id: key, changes: 1 });
+        request.onerror = () => reject(request.error);
+    });
+}
+
 // Inicializar dados padrão
 async function initDefaultData() {
     // Verificar se já existe admin
@@ -205,6 +215,7 @@ window.dbGetAll = dbGetAll;
 window.dbAdd = dbAdd;
 window.dbPut = dbPut;
 window.dbUpdate = dbUpdate;
+window.dbDelete = dbDelete;
 window.hashPassword = hashPassword;
 window.comparePassword = comparePassword;
 

@@ -393,6 +393,60 @@ async function removerAdminUsuario(userId, adminId) {
     return { success: true, message: 'Privilégios de administrador removidos' };
 }
 
+async function removerVaga(vagaId, adminId) {
+    const isAdmin = await verificarAdmin(adminId);
+    if (!isAdmin) {
+        throw new Error('Acesso negado. Apenas administradores.');
+    }
+    
+    // Verificar se a vaga existe
+    const vaga = await dbGet('vagas', vagaId);
+    if (!vaga) {
+        throw new Error('Vaga não encontrada');
+    }
+    
+    // Remover candidaturas relacionadas
+    const candidaturas = await dbGetAll('candidaturas', 'vaga_id', vagaId);
+    for (const candidatura of candidaturas) {
+        await dbDelete('candidaturas', candidatura.id);
+    }
+    
+    // Remover a vaga
+    await dbDelete('vagas', vagaId);
+    
+    return { success: true, message: 'Vaga removida com sucesso' };
+}
+
+async function removerGrupo(grupoId, adminId) {
+    const isAdmin = await verificarAdmin(adminId);
+    if (!isAdmin) {
+        throw new Error('Acesso negado. Apenas administradores.');
+    }
+    
+    // Verificar se o grupo existe
+    const grupo = await dbGet('grupos', grupoId);
+    if (!grupo) {
+        throw new Error('Grupo não encontrado');
+    }
+    
+    // Remover mensagens relacionadas
+    const mensagens = await dbGetAll('mensagens', 'grupo_id', grupoId);
+    for (const mensagem of mensagens) {
+        await dbDelete('mensagens', mensagem.id);
+    }
+    
+    // Remover membros do grupo
+    const membros = await dbGetAll('grupo_membros', 'grupo_id', grupoId);
+    for (const membro of membros) {
+        await dbDelete('grupo_membros', membro.id);
+    }
+    
+    // Remover o grupo
+    await dbDelete('grupos', grupoId);
+    
+    return { success: true, message: 'Grupo removido com sucesso' };
+}
+
 // Tornar todas as funções disponíveis globalmente
 window.buscarPerfil = buscarPerfil;
 window.atualizarPerfil = atualizarPerfil;
@@ -412,5 +466,7 @@ window.fecharContaUsuario = fecharContaUsuario;
 window.reabrirContaUsuario = reabrirContaUsuario;
 window.promoverAdmin = promoverAdmin;
 window.removerAdminUsuario = removerAdminUsuario;
+window.removerVaga = removerVaga;
+window.removerGrupo = removerGrupo;
 window.obterUsuarioLogado = obterUsuarioLogado;
 window.verificarLogin = verificarLogin;
