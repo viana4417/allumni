@@ -262,7 +262,11 @@ async function listarMembrosGrupo(grupoId) {
 // ==================== CHAT ====================
 
 async function buscarMensagensGrupo(grupoId) {
-    const mensagens = await dbGetAll('mensagens', 'grupo_id', grupoId);
+    // Buscar todas as mensagens e filtrar manualmente para evitar problemas de tipo
+    const todasMensagens = await dbGetAll('mensagens');
+    
+    // Filtrar mensagens do grupo (comparação flexível para string/number)
+    const mensagens = todasMensagens.filter(m => m.grupo_id == grupoId);
     
     // Adicionar nome do remetente
     for (const msg of mensagens) {
