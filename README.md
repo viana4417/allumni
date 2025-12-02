@@ -12,16 +12,11 @@ Sistema completo de rede social para ex-alunos com funcionalidades de login, per
 - **Administração**: Painel administrativo para gerenciar usuários e contas
 - **Dashboard**: Interface moderna e responsiva
 
-## 🎯 Como Usar
+## Como Usar
 
 **Simplesmente abra o arquivo `index.html` no seu navegador!**
 
 Tudo funciona diretamente no navegador usando IndexedDB para armazenamento local.
-
-## 📋 Pré-requisitos
-
-- Um navegador moderno (Chrome, Firefox, Edge, Safari)
-- Nada mais!
 
 
 ## 🗄️ Armazenamento de Dados
@@ -36,7 +31,7 @@ O projeto usa **IndexedDB** para armazenar todos os dados localmente no navegado
 
 **Nota**: Os dados são armazenados localmente no navegador. Se você limpar os dados do navegador, os dados serão perdidos. Para backup, você pode exportar os dados do IndexedDB usando as ferramentas de desenvolvedor do navegador.
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6)
 - **Armazenamento**: IndexedDB (nativo do navegador)
@@ -44,7 +39,7 @@ O projeto usa **IndexedDB** para armazenar todos os dados localmente no navegado
 - **Mídia**: MediaRecorder API para gravação de áudio
 - **Upload**: FileReader API para imagens e arquivos
 
-## ✨ Funcionalidades Detalhadas
+## Funcionalidades Detalhadas
 
 ### Autenticação
 - Cadastro de novos usuários
@@ -80,14 +75,14 @@ O projeto usa **IndexedDB** para armazenar todos os dados localmente no navegado
 - Promover usuários a administradores
 - Remover privilégios de administrador
 
-## 🔒 Segurança
+## Segurança
 
 - Senhas são criptografadas usando SHA-256 (Web Crypto API)
 - Validação de dados no frontend
 - Verificação de permissões para ações administrativas
 - Proteção contra acesso não autorizado
 
-## 📝 Notas Importantes
+## Notas Importantes
 
 - **Dados Locais**: Todos os dados são armazenados localmente no navegador
 - **Sem Sincronização**: Os dados não são sincronizados entre dispositivos
