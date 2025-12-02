@@ -134,11 +134,6 @@ async function fazerLogin(email, senha) {
         throw new Error('Email ou senha incorretos');
     }
     
-    // Verificar se conta está fechada
-    if (user.status_conta === 'fechada') {
-        throw new Error('Esta conta foi fechada. Entre em contato com o administrador.');
-    }
-    
     // Verificar senha
     const validPassword = await comparePassword(senha, user.senha);
     if (!validPassword) {

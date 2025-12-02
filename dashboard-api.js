@@ -191,7 +191,7 @@ async function buscarGruposUsuario(userId) {
 }
 
 async function criarGrupo(dados) {
-    const { nome, descricao, criado_por, tipo } = dados;
+    const { nome, descricao, criado_por } = dados;
     
     if (!nome || !criado_por) {
         throw new Error('Nome e criador são obrigatórios');
@@ -201,7 +201,6 @@ async function criarGrupo(dados) {
         nome,
         descricao: descricao || null,
         criado_por,
-        tipo: tipo || 'publico',
         created_at: new Date().toISOString()
     };
     
@@ -330,8 +329,11 @@ async function listarUsuariosAdmin(adminId) {
         throw new Error('Acesso negado. Apenas administradores.');
     }
     
+    // Listar apenas contas ativas (não há mais contas fechadas, elas são removidas)
     const usuarios = await dbGetAll('usuarios');
-    return usuarios.map(u => {
+    const usuariosAtivos = usuarios.filter(u => u.status_conta !== 'fechada' || !u.status_conta);
+    
+    return usuariosAtivos.map(u => {
         const { senha, ...usuarioSafe } = u;
         return usuarioSafe;
     }).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
@@ -343,26 +345,53 @@ async function fecharContaUsuario(userId, adminId) {
         throw new Error('Acesso negado. Apenas administradores.');
     }
     
-    await dbUpdate('usuarios', userId, {
-        status_conta: 'fechada',
-        updated_at: new Date().toISOString()
-    });
-    
-    return { success: true, message: 'Conta fechada com sucesso' };
-}
-
-async function reabrirContaUsuario(userId, adminId) {
-    const isAdmin = await verificarAdmin(adminId);
-    if (!isAdmin) {
-        throw new Error('Acesso negado. Apenas administradores.');
+    // Verificar se o usuário existe
+    const usuario = await dbGet('usuarios', userId);
+    if (!usuario) {
+        throw new Error('Usuário não encontrado');
     }
     
-    await dbUpdate('usuarios', userId, {
-        status_conta: 'ativa',
-        updated_at: new Date().toISOString()
-    });
+    // Não permitir fechar a própria conta
+    if (parseInt(userId) === parseInt(adminId)) {
+        throw new Error('Você não pode fechar sua própria conta');
+    }
     
-    return { success: true, message: 'Conta reaberta com sucesso' };
+    // Remover perfil do usuário
+    const perfil = await dbGetByIndex('perfis', 'usuario_id', userId);
+    if (perfil) {
+        await dbDelete('perfis', perfil.id);
+    }
+    
+    // Remover mensagens do usuário
+    const todasMensagens = await dbGetAll('mensagens');
+    const mensagensUsuario = todasMensagens.filter(m => 
+        m.remetente_id == userId || m.destinatario_id == userId
+    );
+    for (const msg of mensagensUsuario) {
+        await dbDelete('mensagens', msg.id);
+    }
+    
+    // Remover membros de grupos
+    const todosMembros = await dbGetAll('grupo_membros');
+    const membrosUsuario = todosMembros.filter(m => m.usuario_id == userId);
+    for (const membro of membrosUsuario) {
+        await dbDelete('grupo_membros', membro.id);
+    }
+    
+    // Remover candidaturas
+    const todasCandidaturas = await dbGetAll('candidaturas');
+    const candidaturasUsuario = todasCandidaturas.filter(c => c.usuario_id == userId);
+    for (const candidatura of candidaturasUsuario) {
+        await dbDelete('candidaturas', candidatura.id);
+    }
+    
+    // Remover vagas criadas pelo usuário (opcional - você pode decidir manter as vagas)
+    // Por enquanto, vamos manter as vagas mas remover a referência ao criador
+    
+    // Finalmente, remover o usuário
+    await dbDelete('usuarios', userId);
+    
+    return { success: true, message: 'Conta removida permanentemente' };
 }
 
 async function promoverAdmin(userId, adminId) {
@@ -410,7 +439,8 @@ async function removerVaga(vagaId, adminId) {
     }
     
     // Remover candidaturas relacionadas
-    const candidaturas = await dbGetAll('candidaturas', 'vaga_id', vagaId);
+    const todasCandidaturas = await dbGetAll('candidaturas');
+    const candidaturas = todasCandidaturas.filter(c => c.vaga_id == vagaId);
     for (const candidatura of candidaturas) {
         await dbDelete('candidaturas', candidatura.id);
     }
@@ -434,7 +464,8 @@ async function removerGrupo(grupoId, adminId) {
     }
     
     // Remover mensagens relacionadas
-    const mensagens = await dbGetAll('mensagens', 'grupo_id', grupoId);
+    const todasMensagens = await dbGetAll('mensagens');
+    const mensagens = todasMensagens.filter(m => m.grupo_id == grupoId);
     for (const mensagem of mensagens) {
         await dbDelete('mensagens', mensagem.id);
     }
@@ -467,7 +498,6 @@ window.buscarMensagensGrupo = buscarMensagensGrupo;
 window.enviarMensagemAPI = enviarMensagemAPI;
 window.listarUsuariosAdmin = listarUsuariosAdmin;
 window.fecharContaUsuario = fecharContaUsuario;
-window.reabrirContaUsuario = reabrirContaUsuario;
 window.promoverAdmin = promoverAdmin;
 window.removerAdminUsuario = removerAdminUsuario;
 window.removerVaga = removerVaga;

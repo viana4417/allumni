@@ -68,11 +68,7 @@ async function carregarUsuarios(adminId) {
             
             const badges = [];
             if (usuario.is_admin) badges.push('<span class="badge badge-admin">Admin</span>');
-            if (usuario.status_conta === 'fechada') {
-                badges.push('<span class="badge badge-fechada">Conta Fechada</span>');
-            } else {
-                badges.push('<span class="badge badge-ativa">Ativa</span>');
-            }
+            badges.push('<span class="badge badge-ativa">Ativa</span>');
             
             userItem.innerHTML = `
                 <div class="user-info">
@@ -81,10 +77,7 @@ async function carregarUsuarios(adminId) {
                     <div class="user-badges">${badges.join('')}</div>
                 </div>
                 <div class="user-actions">
-                    ${usuario.status_conta === 'fechada' 
-                        ? `<button class="btn-action btn-reabrir" onclick="reabrirConta(${usuario.id})">Reabrir Conta</button>`
-                        : `<button class="btn-action btn-fechar" onclick="fecharConta(${usuario.id})">Fechar Conta</button>`
-                    }
+                    <button class="btn-action btn-fechar" onclick="fecharConta(${usuario.id})">Remover Conta</button>
                     ${usuario.is_admin 
                         ? `<button class="btn-action btn-remove-admin" onclick="removerAdmin(${usuario.id})" ${usuario.id === parseInt(localStorage.getItem('usuarioLogado') ? JSON.parse(localStorage.getItem('usuarioLogado')).id : 0) ? 'disabled' : ''}>Remover Admin</button>`
                         : `<button class="btn-action btn-admin" onclick="tornarAdmin(${usuario.id})">Tornar Admin</button>`
@@ -104,26 +97,15 @@ async function carregarUsuarios(adminId) {
 }
 
 async function fecharConta(userId) {
-    if (!confirm('Tem certeza que deseja fechar esta conta?')) return;
+    if (!confirm('Tem certeza que deseja remover permanentemente esta conta? Esta ação não pode ser desfeita e todos os dados do usuário serão apagados.')) return;
     
     const usuario = obterUsuarioLogado();
     try {
         await fecharContaUsuario(userId, usuario.id);
-        alert('Conta fechada com sucesso!');
+        alert('Conta removida permanentemente!');
         location.reload();
     } catch (error) {
-        alert('Erro ao fechar conta: ' + error.message);
-    }
-}
-
-async function reabrirConta(userId) {
-    const usuario = obterUsuarioLogado();
-    try {
-        await reabrirContaUsuario(userId, usuario.id);
-        alert('Conta reaberta com sucesso!');
-        location.reload();
-    } catch (error) {
-        alert('Erro ao reabrir conta: ' + error.message);
+        alert('Erro ao remover conta: ' + error.message);
     }
 }
 
@@ -295,7 +277,7 @@ async function carregarGruposAdmin() {
                 <div class="grupo-info">
                     <div class="grupo-nome">${grupo.nome || 'Grupo sem nome'}</div>
                     <div class="grupo-detalhes">
-                        ${grupo.descricao || 'Sem descrição'} • ${grupo.total_membros || 0} ${grupo.total_membros === 1 ? 'membro' : 'membros'} • ${grupo.tipo || 'público'}
+                        ${grupo.descricao || 'Sem descrição'} • ${grupo.total_membros || 0} ${grupo.total_membros === 1 ? 'membro' : 'membros'}
                     </div>
                 </div>
                 <div class="user-actions">
@@ -323,7 +305,6 @@ async function criarNovoGrupo(event) {
     const dados = {
         nome: document.getElementById('grupoNome').value,
         descricao: document.getElementById('grupoDescricao').value || null,
-        tipo: document.getElementById('grupoTipo').value || 'publico',
         criado_por: usuario.id
     };
     
