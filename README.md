@@ -71,9 +71,15 @@ O projeto usa **IndexedDB** para armazenar todos os dados localmente no navegado
 
 ### Administração
 - Listagem de todos os usuários
-- Fechar/reabrir contas
+- Remover contas permanentemente
 - Promover usuários a administradores
 - Remover privilégios de administrador
+- Criar e remover grupos
+- Criar e remover vagas
+
+**Credenciais Padrão do Admin:**
+- Email: `admin@unisantos.br`
+- Senha: `123456`
 
 ## Segurança
 

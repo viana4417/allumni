@@ -180,13 +180,13 @@ function dbDelete(storeName, key) {
 // Inicializar dados padrão
 async function initDefaultData() {
     // Verificar se já existe admin
-    const adminExists = await dbGetByIndex('usuarios', 'email', 'admin');
+    const adminExists = await dbGetByIndex('usuarios', 'email', 'admin@unisantos.br');
     
     if (!adminExists) {
         const adminPassword = await hashPassword('123456');
         const adminUser = {
             nome: 'Administrador',
-            email: 'admin',
+            email: 'admin@unisantos.br',
             senha: adminPassword,
             tipo: 'admin',
             is_admin: 1,
