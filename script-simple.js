@@ -46,6 +46,13 @@ function toggleMode() {
     console.log('Modo alterado para:', currentMode);
 }
 
+// Função para validar formato de email
+function validarEmail(email) {
+    // Regex para validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
 // Função para mostrar erro
 function mostrarErro(mensagem) {
     const authForm = document.getElementById('authForm');
@@ -82,6 +89,11 @@ async function cadastrarUsuario(dados) {
     
     if (!nome || !email || !senha) {
         throw new Error('Nome, email e senha são obrigatórios');
+    }
+    
+    // Validar formato de email
+    if (!validarEmail(email)) {
+        throw new Error('Email inválido. Por favor, insira um email válido.');
     }
     
     // Verificar se email já existe
@@ -179,6 +191,12 @@ async function handleSubmit(e) {
     
     if (!email || !senha) {
         mostrarErro('Por favor, preencha email e senha.');
+        return;
+    }
+    
+    // Validar formato de email
+    if (!validarEmail(email)) {
+        mostrarErro('Por favor, insira um email válido.\nExemplo: usuario@exemplo.com');
         return;
     }
     
